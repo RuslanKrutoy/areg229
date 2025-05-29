@@ -583,9 +583,11 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
 $error = '';
 $success = '';
 
+// Обновление статуса бронирования
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id'], $_POST['status'])) {
     $booking_id = intval($_POST['booking_id']);
     $status = $_POST['status'];
+
     $allowed_statuses = ['new', 'completed', 'cancelled'];
     if (in_array($status, $allowed_statuses)) {
         if (updateBookingStatus($booking_id, $status)) {
@@ -598,8 +600,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id'], $_POST[
     }
 }
 
-$bookings = getAllBookings();
+// Получаем фильтр из GET
+$filterStatus = $_GET['status'] ?? 'all';
+
+// Получаем все бронирования
+$allBookings = getAllBookings();
+
+// Фильтрация по статусу
+$bookings = array_filter($allBookings, function ($b) use ($filterStatus) {
+    return $filterStatus === 'all' || $b['status'] === $filterStatus;
+});
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -611,18 +623,32 @@ $bookings = getAllBookings();
         th, td {border: 1px solid #ddd; padding: 8px;}
         th {background: #f0f0f0;}
         select, button {padding: 5px;}
+        .filter-form {margin: 20px 0;}
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Панель администратора</h1>
+
     <?php if ($error): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php elseif ($success): ?>
         <div class="success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
+
+    <!-- Форма фильтрации -->
+    <form method="get" class="filter-form">
+        <label for="status">Фильтр по статусу:</label>
+        <select name="status" id="status" onchange="this.form.submit()">
+            <option value="all" <?= $filterStatus === 'all' ? 'selected' : '' ?>>Все</option>
+            <option value="new" <?= $filterStatus === 'new' ? 'selected' : '' ?>>Новое</option>
+            <option value="completed" <?= $filterStatus === 'completed' ? 'selected' : '' ?>>Посещение состоялось</option>
+            <option value="cancelled" <?= $filterStatus === 'cancelled' ? 'selected' : '' ?>>Отменено</option>
+        </select>
+    </form>
+
     <?php if (count($bookings) === 0): ?>
-        <p>Нет бронирований.</p>
+        <p>Нет бронирований по выбранному фильтру.</p>
     <?php else: ?>
         <table>
             <tr>
@@ -643,7 +669,7 @@ $bookings = getAllBookings();
                     <td><?= htmlspecialchars($b['phone']) ?></td>
                     <td><?= htmlspecialchars($b['status']) ?></td>
                     <td>
-                        <form method="post" action="index.php">
+                        <form method="post" action="index.php<?= $filterStatus !== 'all' ? '?status=' . $filterStatus : '' ?>">
                             <input type="hidden" name="booking_id" value="<?= (int)$b['id'] ?>">
                             <select name="status">
                                 <option value="new" <?= $b['status'] === 'new' ? 'selected' : '' ?>>Новое</option>
@@ -657,10 +683,12 @@ $bookings = getAllBookings();
             <?php endforeach; ?>
         </table>
     <?php endif; ?>
+
     <p><a href="../index.php">На главную</a> | <a href="../logout.php">Выйти</a></p>
 </div>
 </body>
 </html>
+
 ```
 
 ## database.sql
