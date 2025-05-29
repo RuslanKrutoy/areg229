@@ -1,5 +1,16 @@
-Шпаргалка по веб-приложению 
-booking.php
+I'll convert the provided PHP web application code into a Markdown format, organizing the content to clearly present each file with its code and maintaining the structure of the original files. The notes section will be included at the end. Each file's content will be wrapped in a single `<xaiArtifact>` tag with the appropriate metadata.
+
+```markdown
+# Web Application Cheat Sheet
+
+Below is the documentation for a restaurant booking web application, including the source code for each file and notes on the database and functionality.
+
+## booking.php
+
+This file handles table booking functionality, requiring user authentication and form validation.
+
+```php
+<?php
 session_start();
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
@@ -30,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (createBooking($data)) {
             $success = 'Бронирование успешно отправлено на рассмотрение.';
         } else {
-            $error = 'Ошибка при создании бронирования.';
+            $error = 'Ошибка при создания бронирования.';
         }
     }
 }
@@ -65,8 +76,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 </body>
 </html>
+```
 
-bookings.php
+## bookings.php
+
+This file displays the user's bookings and personal information.
+
+```php
+<?php
 session_start();
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
@@ -132,8 +149,14 @@ $user = $_SESSION['user'];
 </div>
 </body>
 </html>
+```
 
-feedback.php
+## feedback.php
+
+This file processes feedback submissions for bookings.
+
+```php
+<?php
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
 
@@ -145,8 +168,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['booking_id'], $_POST[
 
 header('Location: bookings.php');
 exit;
+?>
+```
 
-index.php
+## index.php
+
+The main page of the application, providing navigation based on user authentication status.
+
+```php
+<?php
 session_start();
 ?>
 <!DOCTYPE html>
@@ -183,8 +213,14 @@ session_start();
 </div>
 </body>
 </html>
+```
 
-login.php
+## login.php
+
+Handles user login with form validation and redirects based on user role.
+
+```php
+<?php
 session_start();
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
@@ -236,14 +272,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 </body>
 </html>
+```
 
-logout.php
+## logout.php
+
+Terminates the user session and redirects to the login page.
+
+```php
+<?php
 session_start();
 session_destroy();
 header('Location: login.php');
 exit;
+?>
+```
 
-register.php
+## register.php
+
+Handles user registration with input validation and phone number formatting.
+
+```php
+<?php
 session_start();
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
@@ -348,8 +397,14 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+```
 
-includes/config.php
+## includes/config.php
+
+Configuration file for database connection.
+
+```php
+<?php
 session_start();
 $host = 'localhost';
 $user = 'root';
@@ -361,8 +416,15 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 $conn->set_charset("utf8mb4");
+?>
+```
 
-includes/functions.php
+## includes/functions.php
+
+Contains utility functions for validation, user management, and booking operations.
+
+```php
+<?php
 function validatePhone($phone) {
     return preg_match('/^\+7\(\d{3}\)-\d{3}-\d{2}-\d{2}$/', $phone);
 }
@@ -456,8 +518,14 @@ function updateBookingStatus($id, $status) {
     $stmt->bind_param("si", $status, $id);
     return $stmt->execute();
 }
+?>
+```
 
-css/style.css
+## css/style.css
+
+Stylesheet for the application's user interface.
+
+```css
 body {
     font-family: Arial, sans-serif;
     background-color: #f2f2f2;
@@ -494,8 +562,14 @@ a {
     color: blue;
     text-decoration: none;
 }
+```
 
-admin/index.php
+## admin/index.php
+
+Admin panel for managing booking statuses.
+
+```php
+<?php
 session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
@@ -586,11 +660,16 @@ $bookings = getAllBookings();
 </div>
 </body>
 </html>
+```
 
-Заметки
+## Notes
 
-База данных: Используется MySQL (restaurant_booking).
-Структура: PHP для серверной логики, HTML/CSS для интерфейса, JS для форматирования телефона.
-Валидация: Телефон (+7(XXX)-XXX-XX-XX), логин (кириллица, ≥6), пароль (≥6), email.
-Сессии: Проверяются в начале каждого защищённого файла.
-
+- **Database**: Uses MySQL (`restaurant_booking`).
+- **Structure**: PHP for server-side logic, HTML/CSS for interface, JavaScript for phone number formatting.
+- **Validation**: 
+  - Phone: Format `+7(XXX)-XXX-XX-XX`.
+  - Username: Cyrillic, ≥6 characters.
+  - Password: ≥6 characters.
+  - Email: Standard email format.
+- **Sessions**: Authentication checked at the start of each protected file.
+```
